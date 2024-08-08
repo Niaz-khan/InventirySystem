@@ -1,4 +1,5 @@
 from InventorySystem import Inventory, Item
+from Item import Item
 
 inventory = Inventory()
 while True:
@@ -11,9 +12,9 @@ while True:
         print("Exiting...")
         break
     elif choice == '1':
-        name = input("enter the name of item:)".title())
-        price = input("enter the price of item:)".title())
-        quantity = input("enter the quantity of item:)".title())
+        name = input("enter the name of item:) ".title())
+        price = input("enter the price of item:) ".title())
+        quantity = input("enter the quantity of item:) ".title())
         item = Item(name=name, price=price, quantity=quantity)
         inventory.add_item(item)
     elif choice == '2':
