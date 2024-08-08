@@ -16,7 +16,6 @@ class Inventory:
         it_name text,
         it_price real,
         it_quantity integer)""")
-        self.stock = []
 
     def add_item(self, item):
         try:
