@@ -5,7 +5,6 @@ Inventory Management System
 - Include methods for checking stock levels and generating restock alerts.
 """
 import sqlite3 as sql
-import Item
 
 
 class Inventory:
@@ -20,51 +19,60 @@ class Inventory:
         self.stock = []
 
     def add_item(self, item):
-        self.cursor.execute("""
-        insert into Items(it_name, it_price, it_quantity) values (?, ?, ?)""",
-                            (item.item_name, item.price, item.quantity))
-        self.con.commit()
+        try:
+            self.cursor.execute(
+                """ insert into Items(it_name, it_price, it_quantity) values (?, ?, ?)""",
+                (item.item_name, item.price, item.quantity))
+            self.con.commit()
+        except sql.Error as e:
+            print(f"Error: {e}")
 
     def update_stock(self):
-        if self.stock:
-            print("1 --> update name of the item\n2 --> update price\n3 --> update "
-                  "quantity.".title())
-            choice = input(":) ")
-            if choice == '1':
-                name = input("what will be the name of item.")
-                self.stock[0] = name
-            elif choice == '2':
-                price = float(input("enter the amount:) "))
-                self.stock[1] = price
-            elif choice == '3':
-                quan = input("enter the quantity:) ")
-                self.stock[2] = quan
-            else:
-                print("invalid input")
+        """
+        this method will show all items if available  then update name, price and quantity of
+        the item using item_ID
+        """
+        self.display_items()
+        item_id = input("Enter the ID of the item to update:) ")
+        name = input("Enter the new name (or press enter to skip):) ")
+        price = input("Enter the new price (or press enter to skip):) ")
+        quantity = input("Enter the new quantity (or press enter to skip):) ")
 
-        else:
-            print("you have nothing in the stock.".title())
+        if name:
+            self.cursor.execute(""" update Items set it_name = ? where Item_ID = ?""",
+                                (name, item_id))
+        if price:
+            self.cursor.execute(""" update Items set it_price = ? where Item_ID = ?""",
+                                (price, item_id))
+        if quantity:
+            self.cursor.execute(""" update Items set it_quantity = ? where Item_ID = ?""",
+                                (quantity, item_id))
+
         self.con.commit()
 
     def display_items(self):
-        """this function fetch all the data from data base and print it."""
+        """
+        this function fetch all the data from database and print it.
+        """
 
-        self.cursor.execute("""
-        select * from Items
-        """)
-        data_list = self.cursor.fetchall()
-        print("Item_no\titem_name\titem_price\titem_quantity".upper())
-        for row in data_list:
-            print(f"|{row[0]}\t\t|{row[1]}\t\t|  {row[2]}\t\t|  {row[3]}")
-        print("\n\n")
+        try:
+            self.cursor.execute(""" select * from Items """)
+            data_list = self.cursor.fetchall()
+            print("Item_no\titem_name\titem_price\titem_quantity".upper())
+            for row in data_list:
+                print(f"|{row[0]}\t\t|{row[1]}\t\t| {row[2]}\t\t| {row[3]}")
+            print("\n\n")
+        except sql.Error as e:
+            print(f"Error: {e}")
 
     def check_inventory_levels(self):
-        if self.stock:
-            if self.stock[2] <= 10:
-                print("You have to add more quantity of item.")
-            else:
-                print("You have enough stock")
-        else:
-            print("Hurry you have nothing in inventory")
-
-
+        try:
+            self.cursor.execute(""" select * from Items """)
+            data_list = self.cursor.fetchall()
+            for row in data_list:
+                if row[3] <= 10:
+                    print(f"You have to add more quantity of {row[1]}.")
+                else:
+                    print(f"You have enough stock of {row[1]}.")
+        except sql.Error as e:
+            print(f"Error: {e}")
